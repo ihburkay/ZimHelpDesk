@@ -1,0 +1,59 @@
+﻿@page "/AddDemand"
+@using ZimHelpDesk.Data
+@inject DemandService objDemService
+@inject NavigationManager NavigationManager
+
+
+
+<h2>Talep Ekle</h2>
+<hr />
+
+
+
+<form>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="Type" class="control-label">Talep Türü</label>
+                <select @bind="@objDem.Type" class="form-control">
+                    <option value="">--Talep Türünü Seç--</option>
+                    <option value="0">ERP</option>
+                    <option value="1">SİSTEM</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="Topic" class="control-label">Konu</label>
+                <input form="Topic" class="form-control" @bind="@objDem.Topic" />
+            </div>
+            <div class="form-group">
+                <label for="Description" class="control-label">Açıklama</label>
+                <textarea form="Description" class="form-control" @bind="@objDem.Description" />
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="button" class="btn btn-primary" @onclick="@CreateDemand" value="Kaydet" />
+                <input type="button" class="btn btn-secondary" @onclick="@Cancel" value="Vazgeç" />
+            </div>
+        </div>
+    </div>
+</form>
+
+@code {
+    Demand objDem = new Demand();
+    protected void CreateDemand()
+    {
+        objDem.Created = DateTime.Now;
+        objDem.Status = CodeTable.DemandStatus.CREATED;
+        objDem.IsActive = true;
+        objDemService.Create(objDem);
+        NavigationManager.NavigateTo("DemandPage");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("DemandPage");
+    }
+}

@@ -1,0 +1,66 @@
+﻿<h3>EditDemand</h3>
+@page "/EditDemand/{CurrentID}"
+@using ZimHelpDesk.Data
+@inject DemandService objDemService
+@inject NavigationManager NavigationManager
+
+<h2>Talep Güncelle</h2>
+<hr />
+<form>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <input for="Name" class="form-control" @bind="@objDem.DemandId">
+            </div>
+            <div class="form-group">
+                <label for="Type" class="control-label">Talep Türü</label>
+                <select @bind="@objDem.Type" class="form-control">
+                    <option value="">--Talep Türünü Seç--</option>
+                    <option value="0">ERP</option>
+                    <option value="1">SİSTEM</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="Topic" class="control-label">Konu</label>
+                <input form="Topic" class="form-control" @bind="@objDem.Topic" />
+            </div>
+            <div class="form-group">
+                <label for="Description" class="control-label">Açıklama</label>
+                <input form="Description" class="form-control" @bind="@objDem.Description" />
+            </div>
+            <div class="form-group">
+                <label for="IsActive" class="control-label">Açık</label>
+                <input type="checkbox" form="IsActive" class="form-control" @bind="@objDem.IsActive" />
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="button" class="btn btn-primary" @onclick="@UpdateDemand" value="Güncelle" />
+                <input type="button" class="btn btn-secondary" @onclick="@Cancel" value="Vazgeç" />
+            </div>
+        </div>
+    </div>
+</form>
+
+@code {
+    [Parameter]
+    public string CurrentID { get; set; }
+    Demand objDem = new Demand();
+    protected override async Task OnInitializedAsync()
+    {
+        objDem = await Task.Run(() => objDemService.GetDemandById(Convert.ToInt32(CurrentID)));
+    }
+
+    protected void UpdateDemand()
+    {
+        objDemService.UpdateDemand(objDem);
+        NavigationManager.NavigateTo("DemandPage");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("DemandPage");
+    }
+}

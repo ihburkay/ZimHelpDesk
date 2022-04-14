@@ -1,0 +1,62 @@
+﻿@page "/DemandAttend"
+@using ZimHelpDesk.Data
+
+@inject DemandService objDemandService
+@inject UserService objUserService
+
+<h3>Talep Atama</h3>
+
+@if (objDemands == null)
+{
+    <p><em>Yükleniyor...</em></p>
+
+}
+else
+{
+<sync></sync>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Talep No</th>               
+                <th>Talep Türü</th>
+                <th>Konu</th>                
+                <th>Oluşturan</th>
+                <th>Tarih</th>
+                <th>Durum</th>                
+                <th>Uzman</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var dem in objDemands)
+                {               
+                <tr>
+                     <td>@dem.DemandId</td>
+                     <td>@CodeTable.DemandType.TypeArr[@dem.Type]</td>
+                     <td>@dem.Topic</td>         
+                     <td>@dem.User.UserName</td>
+                     <td>@dem.Created.ToString("dd/mm/yyyy HH:mm")</td>                   
+                     <td>@CodeTable.DemandStatus.DemandStatusArr[dem.Status]</td>
+                     <td>@((dem.Agent!=null)?dem.Agent.UserName:"")</td>
+                     <td></td>
+                     <td>
+                         <a class="nav-link" href="AddAttend/@dem.DemandId">
+                             <span class="oi oi-people" aria-hidden="true"></span> Atama Yap
+                         </a>                         
+                     </td>                  
+                 </tr>
+                }
+        </tbody>    
+    </table>
+}
+
+@code {
+    List<Demand> objDemands;
+    protected override async Task OnInitializedAsync()
+    {
+        bool IsAdmin = await Task.Run(() => objUserService.IsAdminForAttend());                
+        if(IsAdmin)
+        {
+            objDemands = await Task.Run(() => objDemandService.GetAllDemands()); 
+        }       
+    }
+}

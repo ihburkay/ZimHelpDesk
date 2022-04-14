@@ -1,0 +1,68 @@
+﻿@page "/DetailPage/{CurrentID}"
+@using ZimHelpDesk.Data
+@inject DemandDetailService objDetailService
+@inject DemandService objDemandService
+<h3> Talep Detayı </h3>
+
+@if (objDetails == null)
+{
+    <p><em>Yükleniyor...</em></p>
+
+}
+else
+{
+     <div class="row">
+            <div class="col-md-8">
+               <div class="form-group">
+                <label>Talep Id</label>
+                <label>@objDem.DemandId</label>
+            </div>
+                 <div class="form-group">
+                <label>Talep Türü</label>
+                <label>@CodeTable.DemandType.TypeArr[objDem.Type]</label>
+            </div>
+                 <div class="form-group">
+                <label>Konu</label>
+                <label>@objDem.Topic</label>
+            </div>
+                 <div class="form-group">
+                <label>Açıklama</label>
+                <label>@objDem.Description</label>
+            </div>
+           
+        </div>
+
+    </div>  
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Tarih</th>
+                <th>Durum</th>                
+                <th>Oluşturan</th>
+                <th>Yorum</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var dem in objDetails)
+                {
+                 <tr>
+                     <td>@dem.Created</td>
+                     <td>@CodeTable.DemandStatus.DemandStatusArr[dem.Status]</td>                              
+                     <td>@dem.Demand.User.UserName</td>
+                     <td>@dem.Demand.Comment</td>
+                 </tr>
+                }
+        </tbody>    
+    </table>
+}
+@code {
+    [Parameter]
+    public string CurrentID { get; set; }
+    List<DemandDetail> objDetails;
+    Demand objDem = new Demand();
+    protected override async Task OnInitializedAsync()
+    {
+        objDetails = await Task.Run(() => objDetailService.GetDemandDetailsByDemandId(Convert.ToInt32(CurrentID)));
+        objDem = await Task.Run(() => objDemandService.GetDemandById(Convert.ToInt32(CurrentID)));
+    }
+}

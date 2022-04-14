@@ -1,0 +1,43 @@
+﻿<div class="top-row pl-4 navbar navbar-dark">
+    <a class="navbar-brand" href="">Yardım Masası</a>
+    <button class="navbar-toggler" @onclick="ToggleNavMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <ul class="nav flex-column">
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="DemandPage">
+                <span class="oi oi-target" aria-hidden="true"></span> Taleplerim
+            </NavLink>
+        </li> 
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="DemandAttend">
+                <span class="oi oi-people" aria-hidden="true"></span> Talep Atama
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="AgentPage">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Uzman Ekranı
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="UserDepartment">
+                <span class="oi oi-people" aria-hidden="true"></span> Kullanıcılar
+            </NavLink>
+        </li>
+
+    </ul>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

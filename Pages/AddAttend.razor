@@ -1,0 +1,105 @@
+﻿@page "/AddAttend/{CurrentID}"
+@using ZimHelpDesk.Data
+@inject DemandService objDemandService
+@inject DemandDetailService objDetailService
+@inject UserService objUserService
+@inject NavigationManager NavigationManager
+
+<h2>Uzman Ata</h2>
+<hr />
+<form>
+    <div class="row">
+        <div class="col-md-8">
+               <div class="form-group">
+                <label>Talep Id</label>
+                <label>@objDem.DemandId</label>
+            </div>
+                 <div class="form-group">
+                <label>Talep Türü</label>
+                <label>@CodeTable.DemandType.TypeArr[objDem.Type]</label>
+            </div>
+                 <div class="form-group">
+                <label>Konu</label>
+                <label>@objDem.Topic</label>
+            </div>
+                 <div class="form-group">
+                <label>Açıklama</label>
+                <label>@objDem.Description</label>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="Type" class="control-label">Uzman</label>
+                <select @bind="@objDem.AgentId" class="form-control">
+                    <option value="">--Talep Türünü Seç--</option>
+                    @foreach(User user in objUsers) { 
+                        <option value=@user.UserId>@user.UserName</option>
+                    }
+                </select>
+            </div>           
+        </div>
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="Type" class="control-label">Termin Tarihi</label>     
+                <RadzenDatePicker @bind-Value=@value DateFormat="d" Class="w-100">
+                        <FooterTemplate>
+                            <RadzenButton Click=@OnTodayClick Text="Today" />
+                        </FooterTemplate>
+                </RadzenDatePicker>
+            </div>
+       </div>
+       
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="button" class="btn btn-primary" @onclick="@CreateDetail" value="Kaydet" />
+                <input type="button" class="btn btn-secondary" @onclick="@Cancel" value="Vazgeç" />
+            </div>
+        </div>
+    </div>
+</form>
+
+@code {
+
+    [Parameter]
+    public string CurrentID { get; set; }
+    List<User> objUsers = new List<User>();        
+    Demand objDem = new Demand();
+    DateTime Today;
+
+    protected override async Task OnInitializedAsync()
+    {
+        objUsers = await Task.Run(() => objUserService.GetAllUsersByDepId(CodeTable.Department.INFORMATION));
+        objDem = await Task.Run(()=>objDemandService.GetDemandById(Convert.ToInt32(CurrentID)));
+        Today= DateTime.Today;
+    }
+    DemandDetail objDetail = new DemandDetail();
+    protected void CreateDetail()
+    {
+        objDetail.DemandId = objDem.DemandId;
+        objDetail.Created = DateTime.Now;
+        objDetail.Status = CodeTable.DemandStatus.ATTENDED;
+        objDetailService.Create(objDetail);
+        UpdateDemand();
+        NavigationManager.NavigateTo("DemandAttend");
+    }
+    protected void UpdateDemand()
+    {
+        objDem.Status = CodeTable.DemandStatus.ATTENDED;
+        objDem.DeadLine = value;
+        objDemandService.UpdateDemand(objDem);
+    }
+
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("DemandAttend");
+    }
+
+    DateTime value;
+    void OnTodayClick()
+    {
+        value = DateTime.Now;
+        objDem.DeadLine = value;
+    }
+}

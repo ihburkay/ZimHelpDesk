@@ -1,0 +1,60 @@
+﻿@page "/AgentPage"
+@using ZimHelpDesk.Data
+@inject DemandService  objDemandService
+@inject UserService objUserService
+
+<h3>İş Listesi (@uname)</h3>
+
+@if (objDemands == null)
+{
+    <p><em>Yükleniyor...</em></p>
+
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Talep No</th>
+                <th>Talep Türü</th>
+                <th>Konu</th>
+                <th>Açıklama</th>
+                <th>Oluşturma</th>
+                <th>Termin Tarihi</th>
+                <th>Durum</th>                
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var dem in objDemands)
+                {               
+                <tr>
+                     <td>@dem.DemandId</td>
+                     <td>@CodeTable.DemandType.TypeArr[@dem.Type]</td>
+                     <td>@dem.Topic</td>
+                     <td>@dem.Description</td>
+                     <td>@dem.Created</td>
+                     <td>@dem.DeadLine</td>
+                     <td>@CodeTable.DemandStatus.DemandStatusArr[dem.Status]</td>
+                     <td></td>
+                     <td>
+                         <a class="nav-link" href="EndComment/@dem.DemandId">
+                             <span class="oi oi-pencil" aria-hidden="true"></span> Kapat
+                         </a>                         
+                     </td>                  
+                 </tr>
+                }
+        </tbody>    
+    </table>
+}
+
+@code 
+{
+    List<Demand> objDemands;
+    string uname;
+    protected override async Task OnInitializedAsync()
+    {
+        objDemands = await Task.Run(() => objDemandService.GetAttendedDemands());
+        uname = await Task.Run(() => objUserService.GetUserName());
+    }
+
+}

@@ -1,0 +1,64 @@
+﻿
+@page "/UserDepartment"
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using ZimHelpDesk.Data
+@inject UserService ObjUserService
+
+<h3>Kullanıcı Listesi</h3>
+@if (objUsers == null)
+{
+    <p><em>Yükleniyor...</em></p>
+
+}
+else
+{
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>User Id</th>
+                <th>UserName</th>
+                <th>Departman</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var usr in objUsers)
+            {
+                <tr>
+                    <td>@usr.UserId</td>
+                    <td>@usr.UserName</td>
+                    <td>
+                          <RadzenDropDown 
+                                Disabled=false
+                                TValue="int" 
+                                Data=@(objDepartments.Select(c=> new {departmentId=c.Id,departmentName=c.Name}) )
+                                TextProperty="departmentName" 
+                                ValueProperty="departmentId" 
+                                @bind-Value="@usr.DepartmentId"
+                                Change=@(args=>OnChange(args,@usr.UserId))>
+                         </RadzenDropDown>    
+                         
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    List<User> objUsers;
+    List<Department> objDepartments;
+    Department Value{ get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        objUsers = await Task.Run(() => ObjUserService.GetAllUsers());
+        objDepartments = await Task.Run(() => ObjUserService.GetAllDepartments());
+    }
+    
+    void OnChange(object value, int userId)
+    {
+       ObjUserService.UpdateDepartmentForUser(Convert.ToInt32(value),userId);
+    }
+
+
+}

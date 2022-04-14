@@ -1,0 +1,59 @@
+﻿@page "/EndComment/{CurrentID}"
+@using ZimHelpDesk.Data
+@inject DemandService objDemService
+@inject DemandDetailService objDetailService
+@inject NavigationManager NavigationManager
+<h1>Uzman Yorumu </h1>
+<hr/>
+<form>
+    <div class="row">
+        <div class="col-md-8">       
+            <div class="form-group">
+                <label for="UzmanYorumu" class="control-label">Uzman Yorumu</label>
+                <textarea form="UzmanYorumu" class="form-control" @bind="@objDem.Comment" />
+            </div>           
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="button" class="btn btn-danger" @onclick="@CreateDemandDetail" value="Kapat" />
+                <input type="button" class="btn btn-secondary" @onclick="@Cancel" value="Vazgeç" />
+            </div>
+        </div>
+    </div>
+</form>
+
+
+
+@code {
+
+    [Parameter]
+    public string CurrentID { get; set; }
+    DemandDetail objdetail = new DemandDetail();
+    Demand objDem = new Demand();
+    protected override async Task OnInitializedAsync()
+    {
+        objDem = await Task.Run(() => objDemService.GetDemandById(Convert.ToInt32(CurrentID)));
+    }
+    protected void CreateDemandDetail()
+    {
+        objdetail.DemandId = objDem.DemandId;
+        objdetail.Created = DateTime.Now;
+        objdetail.Status = CodeTable.DemandStatus.CLOSED;        
+        objDetailService.Create(objdetail);
+        UpdateDemand();
+        NavigationManager.NavigateTo("AgentPage");
+
+    }
+    protected void UpdateDemand()
+    {
+        objDem.Status =CodeTable.DemandStatus.CLOSED;                
+        objDemService.UpdateDemand(objDem);
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("AgentPage");
+    }
+}
+
